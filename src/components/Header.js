@@ -182,15 +182,15 @@ export default function Header() {
                     <NavLink to="/gioi-thieu" className="header-link">
                         Giới thiệu
                     </NavLink>
+                    <NavLink to="/san-pham" className="header-link">
+                        {/* Bánh sinh nhật */}
+                        Sản phẩm
+                    </NavLink>
                     <NavLink to="/lien-he" className="header-link">
                         Liên hệ
                     </NavLink>
                     <NavLink to="/huong-dan" className="header-link">
                         Hướng dẫn
-                    </NavLink>
-                    <NavLink to="/san-pham" className="header-link">
-                        {/* Bánh sinh nhật */}
-                        Sản phẩm
                     </NavLink>
                     {!token &&
                         headerCategories.map((category) => (

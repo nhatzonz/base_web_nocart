@@ -105,10 +105,18 @@ html.about-page-active {
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="100" fill="url(%23a)"/><circle cx="800" cy="300" r="150" fill="url(%23a)"/><circle cx="400" cy="700" r="120" fill="url(%23a)"/><circle cx="900" cy="800" r="80" fill="url(%23a)"/></svg>')
-        no-repeat center center;
-    background-size: cover;
+    /* Fallback background - prevents black spots on VPS */
+    background: rgba(255, 255, 255, 0.02);
+    /* Modern gradient background */
+    background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 90% 80%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
     animation: about-float 20s ease-in-out infinite;
+    /* Ensure no black artifacts */
+    z-index: 1;
+    opacity: 1;
+    will-change: transform;
 }
 
 @keyframes about-float {

@@ -62,7 +62,7 @@ export default function ContactPage() {
         setSubmitError('');
         setSubmitLoading(true);
         try {
-            await api.post('/api/contact-messages', formData);
+            await api.post('/api/contact-messages/', formData);
             alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
             setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         } catch (err) {

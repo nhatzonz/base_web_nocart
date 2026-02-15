@@ -43,8 +43,7 @@ export default function Footer() {
                             <h3 className="footer-shop-name">{shopInfo?.name || 'Cửa hàng trực tuyến'}</h3>
                         </div>
                         <p className="footer-description">
-                            {shopInfo?.description ||
-                                'Chuyên cung cấp đa dạng sản phẩm chất lượng cao với giá cả hợp lý. Giao hàng nhanh chóng, thanh toán an toàn.'}
+                            {shopInfo?.description || 'Nhận Săn sale, Order TẤT TẦN TẬT ở Nhật Bản.'}
                         </p>
                     </div>
 
@@ -93,7 +92,10 @@ export default function Footer() {
                                 </div>
                             ) : (
                                 <div className="footer-hours-text">
-                                    <div>Thứ 2 - Chủ nhật: 6:00 - 22:00</div>
+                                    <div>
+                                        Vì mình có công việc giờ hành chính nên sẽ phản hồi tin nhắn của bạn ngay khi
+                                        mình online. Vui Lòng chờ và thông cảm nếu thời gian chờ đợi lâu.
+                                    </div>
                                 </div>
                             )}
                         </div>

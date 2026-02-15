@@ -432,22 +432,19 @@ export default function ContactPage() {
                     <div className="contact-faq-grid">
                         <div className="contact-faq-item">
                             <h4>Làm thế nào để đặt hàng?</h4>
-                            <p>
-                                Bạn có thể đặt hàng trực tiếp trên website hoặc gọi điện thoại đến số hotline của chúng
-                                tôi.
-                            </p>
+                            <p>Vui lòng đặt hàng qua Instagram của mình là “rosie_orderr”.</p>
                         </div>
                         <div className="contact-faq-item">
                             <h4>Thời gian giao hàng là bao lâu?</h4>
-                            <p>Chúng tôi giao hàng trong vòng 1-3 ngày làm việc tùy thuộc vào địa điểm giao hàng.</p>
+                            <p>Hàng order sau 2-3 tuần nhận được. </p>
                         </div>
-                        <div className="contact-faq-item">
+                        {/* <div className="contact-faq-item">
                             <h4>Có hỗ trợ đổi trả không?</h4>
                             <p>Có, chúng tôi hỗ trợ đổi trả trong vòng 7 ngày nếu sản phẩm còn nguyên vẹn.</p>
-                        </div>
+                        </div> */}
                         <div className="contact-faq-item">
                             <h4>Phương thức thanh toán nào được chấp nhận?</h4>
-                            <p>Chúng tôi chấp nhận thanh toán bằng tiền mặt, chuyển khoản, và các loại thẻ tín dụng.</p>
+                            <p>Chúng tôi chấp nhận thanh toán bằng Chuyển khoản hoặc Thu COD.</p>
                         </div>
                     </div>
                 </div>

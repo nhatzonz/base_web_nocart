@@ -16,8 +16,18 @@ export default function ProductPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchSuggestions, setSearchSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [searchFocused, setSearchFocused] = useState(false);
     const [allProducts, setAllProducts] = useState([]);
     const productsPerPage = 12;
+
+    const normalizeForSearch = (str) => {
+        if (!str) return '';
+        return String(str)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    };
+
     useEffect(() => {
         document.title = 'Danh sách sản phẩm | Cửa hàng trực tuyến';
     }, []);
@@ -33,10 +43,11 @@ export default function ProductPage() {
         if (searchQuery) {
             // Handle search from header
             setSearchTerm(searchQuery);
+            const q = normalizeForSearch(searchQuery);
             const searchResults = allProducts.filter(
                 (product) =>
-                    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    (product.code && product.code.toLowerCase().includes(searchQuery.toLowerCase())),
+                    normalizeForSearch(product.name).includes(q) ||
+                    (product.code && normalizeForSearch(product.code).includes(q)),
             );
             setFilteredProducts(searchResults);
             setSelectedCategory(null);
@@ -59,14 +70,15 @@ export default function ProductPage() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [searchParams, categories, products, allProducts]);
 
-    // Search functionality
+    // Search functionality - chỉ hiện gợi ý khi user đang focus/ghi vào ô search, không khi load từ URL
     useEffect(() => {
-        if (searchTerm.length > 0) {
+        if (searchTerm.length > 0 && searchFocused) {
+            const q = normalizeForSearch(searchTerm);
             const suggestions = allProducts
                 .filter(
                     (product) =>
-                        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (product.code && product.code.toLowerCase().includes(searchTerm.toLowerCase())),
+                        normalizeForSearch(product.name).includes(q) ||
+                        (product.code && normalizeForSearch(product.code).includes(q)),
                 )
                 .slice(0, 5);
             setSearchSuggestions(suggestions);
@@ -75,7 +87,7 @@ export default function ProductPage() {
             setSearchSuggestions([]);
             setShowSuggestions(false);
         }
-    }, [searchTerm, allProducts]);
+    }, [searchTerm, allProducts, searchFocused]);
 
     const fetchData = async () => {
         try {
@@ -126,12 +138,14 @@ export default function ProductPage() {
     };
 
     const handleSearch = (term) => {
+        setSearchFocused(false);
         setSearchTerm(term);
         if (term.length > 0) {
+            const q = normalizeForSearch(term);
             const searchResults = allProducts.filter(
                 (product) =>
-                    product.name.toLowerCase().includes(term.toLowerCase()) ||
-                    (product.code && product.code.toLowerCase().includes(term.toLowerCase())),
+                    normalizeForSearch(product.name).includes(q) ||
+                    (product.code && normalizeForSearch(product.code).includes(q)),
             );
             setFilteredProducts(searchResults);
             setSelectedCategory(null);
@@ -255,6 +269,8 @@ export default function ProductPage() {
                                     placeholder="Tìm kiếm sản phẩm theo tên hoặc mã..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    onFocus={() => setSearchFocused(true)}
+                                    onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
                                     onKeyPress={(e) => e.key === 'Enter' && handleSearch(searchTerm)}
                                     className="product-search-input"
                                 />

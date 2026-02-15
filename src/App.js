@@ -18,6 +18,7 @@ import OrderAdminPage from './pages/OrderAdminPage';
 import OrderCreatePage from './pages/OrderCreatePage';
 import ProductPage from './pages/ProductPage';
 import ProductsAdminPage from './pages/ProductsAdminPage';
+import ContactAdminPage from './pages/ContactAdminPage';
 import RequestCallPage from './pages/RequestCallPage';
 import ShopInfoPage from './pages/ShopInfoPage';
 import UploadBannerPage from './pages/UploadBanner';
@@ -54,6 +55,7 @@ function App() {
                             <Route path="/admin/products" element={<ProductsAdminPage />} />
                             <Route path="/admin/orders" element={<OrderAdminPage />} />
                             <Route path="/admin/request-calls" element={<RequestCallPage />} />
+                            <Route path="/admin/contact-messages" element={<ContactAdminPage />} />
                             <Route path="*" element={<Navigate to="/" />} />
                         </Routes>
                     </div>

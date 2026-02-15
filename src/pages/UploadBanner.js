@@ -113,10 +113,19 @@ export default function UploadBannerPage() {
     return (
         <div className="banner-container">
             <div className="banner-card">
-                <h2>Upload Banner</h2>
+                <div className="banner-header">
+                    <h2>Upload Banner</h2>
+                    <p className="banner-subtitle">Quản lý ảnh banner chính và sub banner</p>
+                </div>
                 <form onSubmit={onUpload} className="banner-form">
                     <div>
-                        <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+                        <label htmlFor="banner-upload-file">Chọn ảnh</label>
+                        <input
+                            id="banner-upload-file"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        />
                     </div>
                     <div className="banner-row">
                         <label>
@@ -128,8 +137,9 @@ export default function UploadBannerPage() {
                             <span className="banner-label">Sub Banner</span>
                         </label>
                         <div className="banner-sort">
-                            <label>Sort order</label>
+                            <label htmlFor="banner-sort-order">Sort order</label>
                             <input
+                                id="banner-sort-order"
                                 className="banner-input"
                                 type="number"
                                 value={sortOrder}
@@ -156,23 +166,43 @@ export default function UploadBannerPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {banners.map((b) => (
-                                <tr key={b.id}>
-                                    <td>
-                                        <img src={`${API_BASE}${b.image_url}`} alt="banner" className="banner-image" />
-                                    </td>
-                                    <td>{b.isSubBanner ? 'Yes' : 'No'}</td>
-                                    <td>{b.sort_order}</td>
-                                    <td>
-                                        <button className="banner-btn" onClick={() => startEdit(b)}>
-                                            Sửa
-                                        </button>
-                                        <button className="banner-btn banner-btn-danger" onClick={() => remove(b.id)}>
-                                            Xoá
-                                        </button>
+                            {banners.length === 0 ? (
+                                <tr>
+                                    <td colSpan="4" className="banner-empty-state">
+                                        Chưa có banner nào
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                banners.map((b) => (
+                                    <tr key={b.id}>
+                                        <td>
+                                            <img src={`${API_BASE}${b.image_url}`} alt="banner" className="banner-image" />
+                                        </td>
+                                        <td>{b.isSubBanner ? 'Có' : 'Không'}</td>
+                                        <td>{b.sort_order}</td>
+                                        <td>
+                                            <div className="banner-action-group">
+                                                <button
+                                                    type="button"
+                                                    className="banner-btn"
+                                                    onClick={() => startEdit(b)}
+                                                    aria-label="Sửa banner"
+                                                >
+                                                    Sửa
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className="banner-btn banner-btn-danger"
+                                                    onClick={() => remove(b.id)}
+                                                    aria-label="Xóa banner"
+                                                >
+                                                    Xoá
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -189,8 +219,9 @@ export default function UploadBannerPage() {
                                 />{' '}
                                 Sub
                             </label>
-                            <label>Sort</label>
+                            <label htmlFor="banner-edit-sort">Sort</label>
                             <input
+                                id="banner-edit-sort"
                                 className="banner-input"
                                 type="number"
                                 value={editing.sort_order}
@@ -198,17 +229,19 @@ export default function UploadBannerPage() {
                             />
                         </div>
                         <div className="banner-file">
+                            <label htmlFor="banner-edit-file">Thay ảnh (tùy chọn)</label>
                             <input
+                                id="banner-edit-file"
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => setEditFile(e.target.files?.[0] || null)}
                             />
                         </div>
-                        <div className="banner-row">
-                            <button className="banner-btn" disabled={loading} onClick={saveEdit}>
+                        <div className="banner-row banner-action-group">
+                            <button type="button" className="banner-btn" disabled={loading} onClick={saveEdit}>
                                 {loading ? 'Đang lưu...' : 'Lưu'}
                             </button>
-                            <button className="banner-btn banner-btn-secondary" onClick={cancelEdit}>
+                            <button type="button" className="banner-btn banner-btn-secondary" onClick={cancelEdit}>
                                 Huỷ
                             </button>
                         </div>

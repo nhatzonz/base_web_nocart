@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import '../assets/css/productadmin.css';
 import { API_BASE } from '../components/Api_base';
 
@@ -34,6 +34,11 @@ export default function ProductsAdminPage() {
     const [productSections, setProductSections] = useState([]);
     const [showSections, setShowSections] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
+
+    // Search & sort (frontend only)
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState('name');
+    const [sortAsc, setSortAsc] = useState(true);
 
     // Format price function
     const formatPrice = (price) => {
@@ -118,6 +123,56 @@ export default function ProductsAdminPage() {
         fetchProducts();
         fetchAttributes();
     }, [fetchProducts]);
+
+    const getCategoryName = (catId) => {
+        if (!catId) return '';
+        const c = categories.find((x) => String(x.id) === String(catId));
+        return c?.name || '';
+    };
+
+    const normalizeForSearch = (str) => {
+        if (!str) return '';
+        return String(str)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    };
+
+    const filteredAndSortedProducts = useMemo(() => {
+        let result = [...products];
+        const q = normalizeForSearch(searchQuery.trim());
+        if (q) {
+            result = result.filter((p) => {
+                const name = normalizeForSearch(p.name);
+                const code = normalizeForSearch(p.code);
+                const catName = normalizeForSearch(getCategoryName(p.category_id));
+                const terms = q.split(/\s+/).filter(Boolean);
+                return terms.some(
+                    (t) => name.includes(t) || code.includes(t) || catName.includes(t)
+                );
+            });
+        }
+        const asc = sortAsc ? 1 : -1;
+        result.sort((a, b) => {
+            if (sortBy === 'name') {
+                return asc * ((a.name || '').localeCompare(b.name || ''));
+            }
+            if (sortBy === 'price') {
+                return asc * (Number(a.price || 0) - Number(b.price || 0));
+            }
+            if (sortBy === 'sort_order') {
+                return asc * ((Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
+            }
+            return 0;
+        });
+        return result;
+    }, [products, searchQuery, sortBy, sortAsc, categories]);
+
+    const handleResetFilters = () => {
+        setSearchQuery('');
+        setSortBy('name');
+        setSortAsc(true);
+    };
 
     const validateForm = () => {
         const newErrors = {};
@@ -416,26 +471,74 @@ export default function ProductsAdminPage() {
     return (
         <div className="product-admin-container">
             <div className="product-admin-card">
-                <h2 className="product-admin-title">Quản lý sản phẩm</h2>
+                <div className="product-admin-header-wrap">
+                    <h2 className="product-admin-title">Quản lý sản phẩm</h2>
+                    <p className="product-admin-subtitle">Quản lý danh sách sản phẩm, danh mục và thuộc tính</p>
+                </div>
 
                 {/* Filter */}
-                <div className="product-admin-filter">
-                    <label>Lọc theo danh mục:</label>
-                    <select
-                        value={selectedCat}
-                        onChange={(e) => {
-                            setSelectedCat(e.target.value);
-                            fetchProducts(e.target.value);
-                        }}
-                        className="product-admin-select"
-                    >
-                        <option value="">Tất cả</option>
-                        {categories.map((c) => (
-                            <option key={c.id} value={c.id}>
-                                {c.name}
-                            </option>
-                        ))}
-                    </select>
+                <div className="product-admin-filter-bar">
+                    <div className="product-admin-filter">
+                        <input
+                            type="search"
+                            className="product-admin-search-input"
+                            placeholder="Tìm theo tên sản phẩm, mã sản phẩm, danh mục..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            aria-label="Tìm kiếm sản phẩm"
+                        />
+                        <label htmlFor="product-admin-cat-filter">Lọc theo danh mục:</label>
+                        <select
+                            id="product-admin-cat-filter"
+                            value={selectedCat}
+                            onChange={(e) => {
+                                setSelectedCat(e.target.value);
+                                fetchProducts(e.target.value);
+                            }}
+                            className="product-admin-select"
+                        >
+                            <option value="">Tất cả</option>
+                            {categories.map((c) => (
+                                <option key={c.id} value={c.id}>
+                                    {c.name}
+                                </option>
+                            ))}
+                        </select>
+                        <select
+                            className="product-admin-sort-select"
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            aria-label="Sắp xếp theo"
+                        >
+                            <option value="name">Tên sản phẩm</option>
+                            <option value="price">Giá</option>
+                            <option value="sort_order">Thứ tự hiển thị</option>
+                        </select>
+                        <button
+                            type="button"
+                            className="product-admin-sort-toggle"
+                            onClick={() => setSortAsc((prev) => !prev)}
+                            aria-label={sortAsc ? 'Tăng dần' : 'Giảm dần'}
+                            title={sortAsc ? 'Đổi thành giảm dần' : 'Đổi thành tăng dần'}
+                        >
+                            {sortAsc ? '↑' : '↓'}
+                        </button>
+                        <button
+                            type="button"
+                            className="product-admin-filter-btn"
+                            aria-label="Áp dụng bộ lọc"
+                        >
+                            Lọc
+                        </button>
+                        <button
+                            type="button"
+                            className="product-admin-reset-btn"
+                            onClick={handleResetFilters}
+                            aria-label="Đặt lại bộ lọc"
+                        >
+                            Đặt lại
+                        </button>
+                    </div>
                 </div>
                 <button
                     style={{ cursor: 'pointer' }}
@@ -460,38 +563,42 @@ export default function ProductsAdminPage() {
                 {showCreated && (
                     <form onSubmit={submit} onKeyDown={handleFormKeyDown} className="product-admin-form">
                         <div className="product-admin-grid">
-                            <div className="product-admin-field">
-                                <label className="required">Tên sản phẩm</label>
-                                <input
-                                    className={`product-admin-input ${errors.name ? 'error' : ''}`}
-                                    value={form.name}
-                                    onChange={(e) => {
+                            <div className="product-admin-form-section">
+                                <div className="product-admin-field">
+                                    <label className="required" htmlFor="product-admin-name">Tên sản phẩm</label>
+                                    <input
+                                        id="product-admin-name"
+                                        className={`product-admin-input ${errors.name ? 'error' : ''}`}
+                                        value={form.name}
+                                        onChange={(e) => {
                                         setForm({ ...form, name: e.target.value });
                                         if (errors.name) {
                                             setErrors({ ...errors, name: null });
                                         }
                                     }}
-                                    placeholder="Nhập tên sản phẩm"
-                                />
-                                {errors.name && <div className="error-message">{errors.name}</div>}
-                            </div>
+                                        placeholder="Nhập tên sản phẩm"
+                                    />
+                                    {errors.name && <div className="error-message">{errors.name}</div>}
+                                </div>
 
-                            <div className="product-admin-field">
-                                <label>Mã sản phẩm</label>
-                                <input
-                                    className="product-admin-input"
-                                    value={form.code}
-                                    onChange={(e) => setForm({ ...form, code: e.target.value })}
-                                    placeholder="VD: SP-001"
-                                />
-                            </div>
+                                <div className="product-admin-field">
+                                    <label htmlFor="product-admin-code">Mã sản phẩm</label>
+                                    <input
+                                        id="product-admin-code"
+                                        className="product-admin-input"
+                                        value={form.code}
+                                        onChange={(e) => setForm({ ...form, code: e.target.value })}
+                                        placeholder="VD: SP-001"
+                                    />
+                                </div>
 
-                            <div className="product-admin-field">
-                                <label>Giá</label>
-                                <input
-                                    className="product-admin-input"
-                                    type="text"
-                                    value={form.price}
+                                <div className="product-admin-field">
+                                    <label htmlFor="product-admin-price">Giá</label>
+                                    <input
+                                        id="product-admin-price"
+                                        className="product-admin-input"
+                                        type="text"
+                                        value={form.price}
                                     onChange={(e) => {
                                         const rawValue = e.target.value;
                                         const numericValue = rawValue.replace(/[^0-9]/g, '');
@@ -505,15 +612,16 @@ export default function ProductsAdminPage() {
                                             setForm({ ...form, price: formattedValue });
                                         }
                                     }}
-                                    placeholder="Nhập giá sản phẩm (VD: 500.000)"
-                                />
-                            </div>
+                                        placeholder="Nhập giá sản phẩm (VD: 500.000)"
+                                    />
+                                </div>
 
-                            <div className="product-admin-field">
-                                <label className="required">Danh mục</label>
-                                <select
-                                    className={`product-admin-input ${errors.category_id ? 'error' : ''}`}
-                                    value={form.category_id}
+                                <div className="product-admin-field">
+                                    <label className="required" htmlFor="product-admin-category">Danh mục</label>
+                                    <select
+                                        id="product-admin-category"
+                                        className={`product-admin-input ${errors.category_id ? 'error' : ''}`}
+                                        value={form.category_id}
                                     onChange={(e) => {
                                         setForm({ ...form, category_id: e.target.value });
                                         if (errors.category_id) {
@@ -587,19 +695,22 @@ export default function ProductsAdminPage() {
                                         Tạo nhanh danh mục
                                     </button>
                                 )}
+                                </div>
                             </div>
 
-                            <div className="product-admin-field">
-                                <label>Mô tả</label>
-                                <input
-                                    className="product-admin-input"
-                                    value={form.description}
-                                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                />
-                            </div>
+                            <div className="product-admin-form-section">
+                                <div className="product-admin-field">
+                                    <label htmlFor="product-admin-description">Mô tả</label>
+                                    <input
+                                        id="product-admin-description"
+                                        className="product-admin-input"
+                                        value={form.description}
+                                        onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                    />
+                                </div>
 
-                            {/* Attributes */}
-                            <div className="product-admin-field">
+                                {/* Attributes */}
+                                <div className="product-admin-field">
                                 <label>Thuộc tính</label>
                                 {/* Quick create attribute */}
                                 {quickAttr.open ? (
@@ -727,26 +838,30 @@ export default function ProductsAdminPage() {
                                         + Thêm thuộc tính
                                     </button>
                                 </div>
+                                </div>
                             </div>
 
-                            <div className="product-admin-field">
-                                <label>Thứ tự hiển thị</label>
-                                <input
-                                    className="product-admin-input"
-                                    type="number"
-                                    value={form.sort_order}
-                                    onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
-                                />
-                            </div>
+                            <div className="product-admin-form-section">
+                                <div className="product-admin-field">
+                                    <label htmlFor="product-admin-sort-order">Thứ tự hiển thị</label>
+                                    <input
+                                        id="product-admin-sort-order"
+                                        className="product-admin-input"
+                                        type="number"
+                                        value={form.sort_order}
+                                        onChange={(e) => setForm({ ...form, sort_order: Number(e.target.value) })}
+                                    />
+                                </div>
 
-                            <div className="product-admin-field">
-                                <label>Ảnh sản phẩm</label>
-                                <input
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={(e) => handleImagesChange(e.target.files)}
-                                />
+                                <div className="product-admin-field">
+                                    <label htmlFor="product-admin-images">Ảnh sản phẩm</label>
+                                    <input
+                                        id="product-admin-images"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={(e) => handleImagesChange(e.target.files)}
+                                    />
                                 {editingId && (
                                     <div className="product-admin-inline">
                                         <label className="product-admin-checkbox">
@@ -759,19 +874,24 @@ export default function ProductsAdminPage() {
                                         </label>
                                     </div>
                                 )}
-                            </div>
-                            <div className="product-admin-image-preview">
-                                {images.map((img, idx) => (
-                                    <div key={idx} className={`product-admin-image-box ${img.isMain ? 'active' : ''}`}>
-                                        <img src={img.preview} alt={`preview-${idx}`} />
-                                        <button type="button" onClick={() => setMainImage(idx)}>
-                                            {img.isMain ? 'Ảnh chính ✓' : 'Chọn ảnh chính'}
-                                        </button>
-                                        <button type="button" onClick={() => removeImage(idx)}>
-                                            Xoá
-                                        </button>
-                                    </div>
-                                ))}
+                                </div>
+                                <div className="product-admin-image-preview">
+                                    {images.map((img, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`product-admin-image-box product-admin-image-hover ${img.isMain ? 'active' : ''}`}
+                                        >
+                                            {img.isMain && <span className="product-admin-image-main-badge">Ảnh chính</span>}
+                                            <img src={img.preview} alt={`preview-${idx}`} />
+                                            <button type="button" onClick={() => setMainImage(idx)}>
+                                                {img.isMain ? 'Ảnh chính ✓' : 'Chọn ảnh chính'}
+                                            </button>
+                                            <button type="button" onClick={() => removeImage(idx)}>
+                                                Xoá
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
                             <button
@@ -787,8 +907,8 @@ export default function ProductsAdminPage() {
                 )}
 
                 {/* Table */}
-                <div className="product-admin-table-wrapper">
-                    <table className="product-admin-table">
+                <div className="product-admin-table-wrapper product-admin-table-scroll">
+                    <table className="product-admin-table product-admin-table-sticky product-admin-table-zebra">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -800,36 +920,52 @@ export default function ProductsAdminPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.map((p) => (
-                                <tr key={p.id}>
-                                    <td>{p.id}</td>
-                                    <td>{p.name}</td>
-                                    <td>{formatPrice(p.price)}</td>
-                                    <td>{p.category_id || ''}</td>
-                                    <td>{p.sort_order}</td>
-                                    <td>
-                                        <button className="product-admin-btn" onClick={() => startEdit(p)}>
-                                            Sửa
-                                        </button>
-                                        <button
-                                            className="product-admin-btn product-admin-btn-secondary"
-                                            onClick={() => {
-                                                fetchProductSections(p.id);
-                                                setShowSections(true);
-                                                setEditingId(p.id);
-                                            }}
-                                        >
-                                            Mô tả
-                                        </button>
-                                        <button
-                                            className="product-admin-btn product-admin-btn-danger"
-                                            onClick={() => remove(p.id)}
-                                        >
-                                            Xoá
-                                        </button>
+                            {filteredAndSortedProducts.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="product-admin-empty-state">
+                                        Chưa có sản phẩm nào
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                filteredAndSortedProducts.map((p) => (
+                                    <tr key={p.id} className="product-admin-row-hover">
+                                        <td>{p.id}</td>
+                                        <td>{p.name}</td>
+                                        <td>{formatPrice(p.price)}</td>
+                                        <td>{getCategoryName(p.category_id) || p.category_id || ''}</td>
+                                        <td>{p.sort_order}</td>
+                                        <td>
+                                            <div className="product-admin-action-group">
+                                                <button
+                                                    className="product-admin-btn"
+                                                    onClick={() => startEdit(p)}
+                                                    aria-label="Sửa sản phẩm"
+                                                >
+                                                    Sửa
+                                                </button>
+                                                <button
+                                                    className="product-admin-btn product-admin-btn-secondary"
+                                                    onClick={() => {
+                                                        fetchProductSections(p.id);
+                                                        setShowSections(true);
+                                                        setEditingId(p.id);
+                                                    }}
+                                                    aria-label="Mô tả sản phẩm"
+                                                >
+                                                    Mô tả
+                                                </button>
+                                                <button
+                                                    className="product-admin-btn product-admin-btn-danger"
+                                                    onClick={() => remove(p.id)}
+                                                    aria-label="Xóa sản phẩm"
+                                                >
+                                                    Xoá
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -846,7 +982,7 @@ export default function ProductsAdminPage() {
                             </div>
 
                             <div className="product-admin-modal-content">
-                                <div className="product-admin-sections">
+                                <div className="product-admin-sections product-admin-modal-section">
                                     {productSections.map((section, sectionIndex) => (
                                         <div key={section.id} className="product-admin-section">
                                             <div className="product-admin-section-header">
@@ -980,7 +1116,7 @@ export default function ProductsAdminPage() {
                                 </div>
                             </div>
 
-                            <div className="product-admin-modal-footer">
+                            <div className="product-admin-modal-footer product-admin-modal-footer-sticky">
                                 <button
                                     className="product-admin-btn product-admin-btn-secondary"
                                     onClick={() => setShowSections(false)}

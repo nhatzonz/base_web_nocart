@@ -14,8 +14,20 @@ export default function Header() {
     const [allProducts, setAllProducts] = useState([]);
     const [headerCategories, setHeaderCategories] = useState([]);
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [token, setToken] = useState(() => localStorage.getItem('token'));
     const navigate = useNavigate();
-    const token = localStorage.getItem('token');
+
+    useEffect(() => {
+        const handleAuthChange = () => setToken(localStorage.getItem('token'));
+        window.addEventListener('auth-change', handleAuthChange);
+        return () => window.removeEventListener('auth-change', handleAuthChange);
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setToken(null);
+        navigate('/');
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -36,14 +48,23 @@ export default function Header() {
         fetchData();
     }, []);
 
+    const normalizeForSearch = (str) => {
+        if (!str) return '';
+        return String(str)
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+    };
+
     // Search functionality
     useEffect(() => {
         if (searchTerm.length > 0) {
+            const q = normalizeForSearch(searchTerm);
             const suggestions = allProducts
                 .filter(
                     (product) =>
-                        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (product.code && product.code.toLowerCase().includes(searchTerm.toLowerCase())),
+                        normalizeForSearch(product.name).includes(q) ||
+                        (product.code && normalizeForSearch(product.code).includes(q)),
                 )
                 .slice(0, 5);
             setSearchSuggestions(suggestions);
@@ -104,9 +125,15 @@ export default function Header() {
                                 className="header-search"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
+                                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                                 onKeyPress={(e) => e.key === 'Enter' && handleHeaderSearch(searchTerm)}
                             />
-                            <button className="header-search-button" onClick={() => handleHeaderSearch(searchTerm)}>
+                            <button
+                                type="button"
+                                className="header-search-button"
+                                onClick={() => handleHeaderSearch(searchTerm)}
+                                aria-label="Tìm kiếm"
+                            >
                                 <i className="fa-solid fa-search"></i>
                             </button>
 
@@ -138,17 +165,19 @@ export default function Header() {
                         </div>
                     </div>
                     <div style={{ display: 'flex', flex: 1, justifyContent: 'center' }}>
-                        <NavLink
-                            className="header-admin-button"
-                            to="/admin/login"
-                            style={{
-                                '&:hover': {
-                                    background: 'red',
-                                },
-                            }}
-                        >
-                            Admin
-                        </NavLink>
+                        {token ? (
+                            <button
+                                type="button"
+                                className="header-admin-button header-logout-btn"
+                                onClick={handleLogout}
+                            >
+                                Đăng xuất
+                            </button>
+                        ) : (
+                            <NavLink className="header-admin-button" to="/admin/login">
+                                Admin
+                            </NavLink>
+                        )}
                     </div>
                 </div>
                 <div className="header-item">
@@ -186,12 +215,18 @@ export default function Header() {
                         {/* Bánh sinh nhật */}
                         Sản phẩm
                     </NavLink>
-                    <NavLink to="/lien-he" className="header-link">
-                        Liên hệ
-                    </NavLink>
-                    <NavLink to="/huong-dan" className="header-link">
-                        Hướng dẫn
-                    </NavLink>
+
+                    {!token && (
+                        <>
+                            <NavLink to="/lien-he" className="header-link">
+                                Liên hệ
+                            </NavLink>
+                            <NavLink to="/huong-dan" className="header-link">
+                                Hướng dẫn
+                            </NavLink>
+                        </>
+                    )}
+
                     {!token &&
                         headerCategories.map((category) => (
                             <NavLink to={`/san-pham?category=${category.id}`} className="header-link">
@@ -214,11 +249,14 @@ export default function Header() {
                             <NavLink to="/admin/products" className="header-link">
                                 Quản lý sản phẩm
                             </NavLink>
-                            <NavLink to="/admin/orders" className="header-link">
+                            {/* <NavLink to="/admin/orders" className="header-link">
                                 Đơn hàng
-                            </NavLink>
+                            </NavLink> */}
                             <NavLink to="/admin/request-calls" className="header-link">
                                 Yêu cầu gọi lại
+                            </NavLink>
+                            <NavLink to="/admin/contact-messages" className="header-link">
+                                Tin nhắn liên hệ
                             </NavLink>
                         </>
                     )}
@@ -256,7 +294,12 @@ export default function Header() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && handleHeaderSearch(searchTerm)}
                     />
-                    <button className="mobile-search-button" onClick={() => handleHeaderSearch(searchTerm)}>
+                    <button
+                        type="button"
+                        className="mobile-search-button"
+                        onClick={() => handleHeaderSearch(searchTerm)}
+                        aria-label="Tìm kiếm"
+                    >
                         <i className="fa-solid fa-search"></i>
                     </button>
                 </div>

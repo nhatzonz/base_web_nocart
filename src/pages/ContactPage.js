@@ -16,6 +16,8 @@ export default function ContactPage() {
     });
 
     const [selectedInfo, setSelectedInfo] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false);
+    const [submitError, setSubmitError] = useState('');
     const [mapCenter, setMapCenter] = useState({
         lat: 21.0285,
         lng: 105.8542,
@@ -45,18 +47,20 @@ export default function ContactPage() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Xử lý gửi form liên hệ
-        console.log('Form data:', formData);
-        alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            subject: '',
-            message: '',
-        });
+        setSubmitError('');
+        setSubmitLoading(true);
+        try {
+            await api.post('/api/contact-messages', formData);
+            alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
+            setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+        } catch (err) {
+            const msg = err.response?.data?.message || err.message || 'Gửi tin nhắn thất bại. Vui lòng thử lại.';
+            setSubmitError(msg);
+        } finally {
+            setSubmitLoading(false);
+        }
     };
 
     const handleInfoClick = (infoType, data) => {
@@ -320,9 +324,14 @@ export default function ContactPage() {
                                         placeholder="Nhập nội dung tin nhắn của bạn..."
                                     ></textarea>
                                 </div>
-                                <button type="submit" className="contact-submit-btn">
+                                {submitError && (
+                                    <div className="contact-form-error" style={{ color: '#c0392b', marginBottom: 12 }}>
+                                        {submitError}
+                                    </div>
+                                )}
+                                <button type="submit" className="contact-submit-btn" disabled={submitLoading}>
                                     <i className="fas fa-paper-plane"></i>
-                                    Gửi tin nhắn
+                                    {submitLoading ? 'Đang gửi...' : 'Gửi tin nhắn'}
                                 </button>
                             </form>
                         </div>

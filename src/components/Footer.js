@@ -165,9 +165,9 @@ export default function Footer() {
                         <a href="/lien-he" className="footer-link">
                             Liên hệ
                         </a>
-                        <a href="/huong-dan" className="footer-link">
+                        {/* <a href="/huong-dan" className="footer-link">
                             Hướng dẫn
-                        </a>
+                        </a> */}
                         <a href="/san-pham" className="footer-link">
                             Sản phẩm
                         </a>

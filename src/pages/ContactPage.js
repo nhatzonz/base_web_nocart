@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import '../assets/css/contact.css';
 import api from '../components/axios-conf';
 
+// Link mạng xã hội (gắn thủ công)
+const SOCIAL_LINKS = {
+    facebook: 'https://www.facebook.com/share/1DKX2RouSB/?mibextid=wwXIfr',
+    instagram: 'https://www.instagram.com/rosie_orderr',
+    tiktok: 'https://www.tiktok.com/@rosie_orderr?_r=1&_t=ZS-93vxJ7ITI4z',
+};
+
 export default function ContactPage() {
     const navigate = useNavigate();
     const [shopInfo, setShopInfo] = useState(null);
@@ -24,9 +31,12 @@ export default function ContactPage() {
     });
 
     useEffect(() => {
-        document.title = 'Liên hệ | Ichi Store';
         fetchShopInfo();
     }, []);
+
+    useEffect(() => {
+        document.title = `Liên hệ | ${shopInfo?.name || 'Cửa hàng'}`;
+    }, [shopInfo?.name]);
 
     const fetchShopInfo = async () => {
         try {
@@ -105,7 +115,7 @@ export default function ContactPage() {
                 </div>
                 <div className="contact-hero-content">
                     <h1 className="contact-hero-title">
-                        Liên hệ với <span className="contact-highlight">Ichi Store</span>
+                        Liên hệ với <span className="contact-highlight">{shopInfo?.name || 'Cửa hàng'}</span>
                     </h1>
                     <p className="contact-hero-subtitle">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn mọi lúc</p>
                 </div>
@@ -129,16 +139,16 @@ export default function ContactPage() {
                                             selectedInfo.type === 'address'
                                                 ? 'map-marker-alt'
                                                 : selectedInfo.type === 'hours'
-                                                ? 'clock'
-                                                : 'info-circle'
+                                                  ? 'clock'
+                                                  : 'info-circle'
                                         }`}
                                     ></i>
                                     <h3>
                                         {selectedInfo.type === 'address'
                                             ? 'Địa chỉ cửa hàng'
                                             : selectedInfo.type === 'hours'
-                                            ? 'Giờ mở cửa'
-                                            : 'Thông tin chi tiết'}
+                                              ? 'Giờ mở cửa'
+                                              : 'Thông tin chi tiết'}
                                     </h3>
                                 </div>
                                 <div className="contact-info-modal-body">
@@ -354,11 +364,11 @@ export default function ContactPage() {
                                     allowFullScreen=""
                                     loading="lazy"
                                     referrerPolicy="no-referrer-when-downgrade"
-                                    title="Vị trí Ichi Store"
+                                    title={`Vị trí ${shopInfo?.name || 'Cửa hàng'}`}
                                 ></iframe>
                                 <div className="contact-map-overlay">
                                     <div className="contact-map-info">
-                                        <h4>Ichi Store</h4>
+                                        <h4>{shopInfo?.name || 'Cửa hàng'}</h4>
                                         <p>{shopInfo?.address || 'chưa có dữ liệu'}</p>
                                         <button className="contact-map-btn">
                                             <i className="fas fa-external-link-alt"></i>
@@ -380,26 +390,37 @@ export default function ContactPage() {
                         Theo dõi chúng tôi trên các mạng xã hội để cập nhật thông tin mới nhất
                     </p>
                     <div className="contact-social-grid">
-                        <a href="#" className="contact-social-link contact-facebook">
+                        <a
+                            href={SOCIAL_LINKS.facebook}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="contact-social-link contact-facebook"
+                        >
                             <i className="fab fa-facebook-f"></i>
                             <span>Facebook</span>
                         </a>
-                        <a href="#" className="contact-social-link contact-instagram">
+                        <a
+                            href={SOCIAL_LINKS.instagram}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="contact-social-link contact-instagram"
+                        >
                             <i className="fab fa-instagram"></i>
                             <span>Instagram</span>
                         </a>
-                        <a href="#" className="contact-social-link contact-zalo">
-                            <i className="fab fa-whatsapp"></i>
-                            <span>Zalo</span>
-                        </a>
-                        <a href="#" className="contact-social-link contact-tiktok">
+                        <a
+                            href={SOCIAL_LINKS.tiktok}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="contact-social-link contact-tiktok"
+                        >
                             <i className="fab fa-tiktok"></i>
                             <span>TikTok</span>
                         </a>
-                        <a href="#" className="contact-social-link contact-youtube">
+                        {/* <a href="#" className="contact-social-link contact-youtube">
                             <i className="fab fa-youtube"></i>
                             <span>YouTube</span>
-                        </a>
+                        </a> */}
                     </div>
                 </div>
             </section>

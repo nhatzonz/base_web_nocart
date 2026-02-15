@@ -1,15 +1,29 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../assets/css/guide.css';
+import api from '../components/axios-conf';
 
 export default function GuidePage() {
     const navigate = useNavigate();
+    const [shopInfo, setShopInfo] = useState(null);
     const [activeStep, setActiveStep] = useState(0);
     const [currentSection, setCurrentSection] = useState('overview');
 
     useEffect(() => {
-        document.title = 'Hướng dẫn đặt hàng | Ichi Store';
+        const fetchShopInfo = async () => {
+            try {
+                const res = await api.get('/api/shopInfo');
+                setShopInfo(res.data);
+            } catch (err) {
+                console.error('Lỗi fetch shopInfo:', err);
+            }
+        };
+        fetchShopInfo();
     }, []);
+
+    useEffect(() => {
+        document.title = `Hướng dẫn đặt hàng | ${shopInfo?.name || 'Cửa hàng'}`;
+    }, [shopInfo?.name]);
 
     const steps = [
         {
@@ -194,7 +208,7 @@ export default function GuidePage() {
                 </div>
                 <div className="guide-hero-content">
                     <h1 className="guide-hero-title">
-                        Hướng dẫn đặt hàng <span className="guide-highlight">Ichi Store</span>
+                        Hướng dẫn đặt hàng <span className="guide-highlight">{shopInfo?.name || 'Cửa hàng'}</span>
                     </h1>
                     <p className="guide-hero-subtitle">
                         Hướng dẫn chi tiết từng bước để đặt mua hàng dễ dàng và nhanh chóng
@@ -384,7 +398,7 @@ export default function GuidePage() {
                 <div className="guide-container">
                     <div className="guide-cta-content">
                         <h2>Bạn đã sẵn sàng đặt hàng?</h2>
-                        <p>Hãy bắt đầu trải nghiệm mua sắm tuyệt vời tại Ichi Store</p>
+                        <p>Hãy bắt đầu trải nghiệm mua sắm tuyệt vời tại {shopInfo?.name || 'Cửa hàng'}</p>
                         <div className="guide-cta-buttons">
                             <button className="guide-btn-primary" onClick={() => navigate('/san-pham')}>
                                 <i className="fas fa-shopping-bag"></i>

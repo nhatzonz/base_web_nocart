@@ -221,9 +221,9 @@ export default function Header() {
                             <NavLink to="/lien-he" className="header-link">
                                 Liên hệ
                             </NavLink>
-                            <NavLink to="/huong-dan" className="header-link">
+                            {/* <NavLink to="/huong-dan" className="header-link">
                                 Hướng dẫn
-                            </NavLink>
+                            </NavLink> */}
                         </>
                     )}
 
@@ -334,10 +334,10 @@ export default function Header() {
                             <i className="fa-solid fa-phone" style={{ marginRight: '10px' }}></i>
                             Liên hệ
                         </button>
-                        <button className="mobile-menu-link" onClick={() => handleMobileNavigation('/huong-dan')}>
+                        {/* <button className="mobile-menu-link" onClick={() => handleMobileNavigation('/huong-dan')}>
                             <i className="fa-solid fa-book" style={{ marginRight: '10px' }}></i>
                             Hướng dẫn
-                        </button>
+                        </button> */}
                     </div>
 
                     <div className="mobile-menu-section">

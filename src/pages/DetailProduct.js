@@ -90,34 +90,35 @@ export default function DetailProduct() {
     };
 
     const handleOrder = () => {
-        const requiredAttrIds = Object.values(product.product_attribute_values || [])
-            .map((v) => v.product_attribute?.id)
-            .filter((v, i, a) => a.indexOf(v) === i);
-        const missing = requiredAttrIds.filter((id) => !selectedByAttrId[id]);
-        if (missing.length > 0) {
-            showError('Lỗi', 'Vui lòng chọn đầy đủ các thuộc tính!');
-            return;
-        }
+        navigate('/lien-he');
+        // const requiredAttrIds = Object.values(product.product_attribute_values || [])
+        //     .map((v) => v.product_attribute?.id)
+        //     .filter((v, i, a) => a.indexOf(v) === i);
+        // const missing = requiredAttrIds.filter((id) => !selectedByAttrId[id]);
+        // if (missing.length > 0) {
+        //     showError('Lỗi', 'Vui lòng chọn đầy đủ các thuộc tính!');
+        //     return;
+        // }
 
-        const unitPrice = calcUnitPrice();
-        const payload = {
-            product_id: product.id,
-            name: product.name,
-            code: product.code || '',
-            category: product.category || null,
-            main_image:
-                (product.images || []).find((i) => i.is_main)?.image_url || (product.images || [])[0]?.image_url || '',
-            attributes: Object.values(selectedByAttrId).map((v) => ({
-                attribute_id: v.product_attribute?.id,
-                attribute_name: v.product_attribute?.name,
-                value: v.value,
-                extra_price: Number(v.extra_price || 0),
-            })),
-            quantity,
-            unit_price: unitPrice,
-            total: unitPrice * quantity,
-        };
-        navigate('/order/create', { state: payload });
+        // const unitPrice = calcUnitPrice();
+        // const payload = {
+        //     product_id: product.id,
+        //     name: product.name,
+        //     code: product.code || '',
+        //     category: product.category || null,
+        //     main_image:
+        //         (product.images || []).find((i) => i.is_main)?.image_url || (product.images || [])[0]?.image_url || '',
+        //     attributes: Object.values(selectedByAttrId).map((v) => ({
+        //         attribute_id: v.product_attribute?.id,
+        //         attribute_name: v.product_attribute?.name,
+        //         value: v.value,
+        //         extra_price: Number(v.extra_price || 0),
+        //     })),
+        //     quantity,
+        //     unit_price: unitPrice,
+        //     total: unitPrice * quantity,
+        // };
+        // navigate('/order/create', { state: payload });
     };
 
     const handleRequestCall = async () => {

@@ -249,9 +249,9 @@ export default function Header() {
                             <NavLink to="/admin/products" className="header-link">
                                 Quản lý sản phẩm
                             </NavLink>
-                            {/* <NavLink to="/admin/orders" className="header-link">
+                            <NavLink to="/admin/orders" className="header-link">
                                 Đơn hàng
-                            </NavLink> */}
+                            </NavLink>
                             <NavLink to="/admin/request-calls" className="header-link">
                                 Yêu cầu gọi lại
                             </NavLink>

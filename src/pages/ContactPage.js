@@ -376,7 +376,7 @@ export default function ContactPage() {
             </section>
 
             {/* Social Media Section */}
-            <section className="contact-social-section">
+            {/* <section className="contact-social-section">
                 <div className="contact-container">
                     <h2 className="contact-section-title">Kết nối với chúng tôi</h2>
                     <p className="contact-social-subtitle">
@@ -405,7 +405,7 @@ export default function ContactPage() {
                         </a>
                     </div>
                 </div>
-            </section>
+            </section> */}
 
             {/* FAQ Section */}
             <section className="contact-faq-section">

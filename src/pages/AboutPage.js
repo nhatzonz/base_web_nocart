@@ -16,7 +16,6 @@ export default function AboutPage() {
     });
 
     useEffect(() => {
-        document.title = 'Giới thiệu | Ichi Store';
         fetchShopInfo();
 
         // Add class to body and html for overflow fix
@@ -29,6 +28,10 @@ export default function AboutPage() {
             document.documentElement.classList.remove('about-page-active');
         };
     }, []);
+
+    useEffect(() => {
+        document.title = `Giới thiệu | ${shopInfo?.name || 'Cửa hàng'}`;
+    }, [shopInfo?.name]);
 
     const fetchShopInfo = async () => {
         try {
@@ -97,7 +100,7 @@ export default function AboutPage() {
                 <div className="about-hero-content">
                     <div className="about-hero-text">
                         <h1 className="about-hero-title">
-                            Chào mừng đến với <span className="about-highlight">Ichi Store</span>
+                            Chào mừng đến với <span className="about-highlight">{shopInfo?.name || 'Cửa hàng'}</span>
                         </h1>
                         <p className="about-hero-subtitle">
                             Nơi hội tụ những sản phẩm chất lượng cao, phục vụ tận tâm với tình yêu thương
@@ -181,7 +184,7 @@ export default function AboutPage() {
                             <h2 className="about-section-title">Câu chuyện của chúng tôi</h2>
                             <div className="about-story-paragraphs">
                                 <p>
-                                    Ichi Store được thành lập với tầm nhìn mang đến những sản phẩm chất lượng cao và
+                                    {shopInfo?.name || 'Cửa hàng'} được thành lập với tầm nhìn mang đến những sản phẩm chất lượng cao và
                                     dịch vụ chuyên nghiệp cho mọi khách hàng. Từ những ngày đầu với niềm đam mê và tình
                                     yêu thương, chúng tôi đã không ngừng phát triển và hoàn thiện.
                                 </p>
@@ -201,7 +204,7 @@ export default function AboutPage() {
                             <div className="about-image-container">
                                 <img
                                     src={`${API_BASE}${shopInfo?.logo_image || '/default-logo.png'}`}
-                                    alt="Ichi Store Story"
+                                    alt={`${shopInfo?.name || 'Cửa hàng'} - Câu chuyện`}
                                     className="about-story-img"
                                 />
                                 <div className="about-image-overlay">

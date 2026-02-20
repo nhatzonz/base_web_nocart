@@ -24,9 +24,12 @@ export default function ContactPage() {
     });
 
     useEffect(() => {
-        document.title = 'Liên hệ | Ichi Store';
         fetchShopInfo();
     }, []);
+
+    useEffect(() => {
+        document.title = `Liên hệ | ${shopInfo?.name || 'Cửa hàng'}`;
+    }, [shopInfo?.name]);
 
     const fetchShopInfo = async () => {
         try {
@@ -52,7 +55,7 @@ export default function ContactPage() {
         setSubmitError('');
         setSubmitLoading(true);
         try {
-            await api.post('/api/contact-messages', formData);
+            await api.post('/api/contact-messages/', formData);
             alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất có thể.');
             setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         } catch (err) {
@@ -105,7 +108,7 @@ export default function ContactPage() {
                 </div>
                 <div className="contact-hero-content">
                     <h1 className="contact-hero-title">
-                        Liên hệ với <span className="contact-highlight">Ichi Store</span>
+                        Liên hệ với <span className="contact-highlight">{shopInfo?.name || 'Cửa hàng'}</span>
                     </h1>
                     <p className="contact-hero-subtitle">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn mọi lúc</p>
                 </div>
@@ -129,16 +132,16 @@ export default function ContactPage() {
                                             selectedInfo.type === 'address'
                                                 ? 'map-marker-alt'
                                                 : selectedInfo.type === 'hours'
-                                                ? 'clock'
-                                                : 'info-circle'
+                                                  ? 'clock'
+                                                  : 'info-circle'
                                         }`}
                                     ></i>
                                     <h3>
                                         {selectedInfo.type === 'address'
                                             ? 'Địa chỉ cửa hàng'
                                             : selectedInfo.type === 'hours'
-                                            ? 'Giờ mở cửa'
-                                            : 'Thông tin chi tiết'}
+                                              ? 'Giờ mở cửa'
+                                              : 'Thông tin chi tiết'}
                                     </h3>
                                 </div>
                                 <div className="contact-info-modal-body">
@@ -354,11 +357,11 @@ export default function ContactPage() {
                                     allowFullScreen=""
                                     loading="lazy"
                                     referrerPolicy="no-referrer-when-downgrade"
-                                    title="Vị trí Ichi Store"
+                                    title={`Vị trí ${shopInfo?.name || 'Cửa hàng'}`}
                                 ></iframe>
                                 <div className="contact-map-overlay">
                                     <div className="contact-map-info">
-                                        <h4>Ichi Store</h4>
+                                        <h4>{shopInfo?.name || 'Cửa hàng'}</h4>
                                         <p>{shopInfo?.address || 'chưa có dữ liệu'}</p>
                                         <button className="contact-map-btn">
                                             <i className="fas fa-external-link-alt"></i>

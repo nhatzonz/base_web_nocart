@@ -206,7 +206,12 @@ export default function ProductsAdminPage() {
             if (form.category_id) fd.append('category_id', String(form.category_id));
             if (form.description) fd.append('description', form.description);
             fd.append('sort_order', String(form.sort_order));
-            const attrsPayload = attrRows.filter((r) => r.attribute_id && r.value);
+            const attrsPayload = attrRows
+                .filter((r) => r.attribute_id && r.value)
+                .map((r) => ({
+                    ...r,
+                    extra_price: parsePrice(r.extra_price),
+                }));
             if (attrsPayload.length) fd.append('attributes', JSON.stringify(attrsPayload));
             if (editingId) {
                 fd.append('replace_attributes', 'true');

@@ -202,7 +202,7 @@ export default function ProductsAdminPage() {
             if (form.code) fd.append('code', form.code);
             fd.append('price', String(parsePrice(form.price) || 0));
             if (form.category_id) fd.append('category_id', String(form.category_id));
-            if (form.description) fd.append('description', form.description);
+            fd.append('description', form.description || '');
             fd.append('sort_order', String(form.sort_order));
             const attrsPayload = attrRows.filter((r) => r.attribute_id && r.value);
             if (attrsPayload.length) fd.append('attributes', JSON.stringify(attrsPayload));

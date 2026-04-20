@@ -229,7 +229,11 @@ export default function Header() {
 
                     {!token &&
                         headerCategories.map((category) => (
-                            <NavLink to={`/san-pham?category=${category.id}`} className="header-link">
+                            <NavLink
+                                key={category.id}
+                                to={`/san-pham?category=${category.id}`}
+                                className="header-link"
+                            >
                                 {category.name}
                             </NavLink>
                         ))}

@@ -147,15 +147,13 @@ export default function ProductsAdminPage() {
                 const code = normalizeForSearch(p.code);
                 const catName = normalizeForSearch(getCategoryName(p.category_id));
                 const terms = q.split(/\s+/).filter(Boolean);
-                return terms.some(
-                    (t) => name.includes(t) || code.includes(t) || catName.includes(t)
-                );
+                return terms.some((t) => name.includes(t) || code.includes(t) || catName.includes(t));
             });
         }
         const asc = sortAsc ? 1 : -1;
         result.sort((a, b) => {
             if (sortBy === 'name') {
-                return asc * ((a.name || '').localeCompare(b.name || ''));
+                return asc * (a.name || '').localeCompare(b.name || '');
             }
             if (sortBy === 'price') {
                 return asc * (Number(a.price || 0) - Number(b.price || 0));
@@ -523,11 +521,7 @@ export default function ProductsAdminPage() {
                         >
                             {sortAsc ? '↑' : '↓'}
                         </button>
-                        <button
-                            type="button"
-                            className="product-admin-filter-btn"
-                            aria-label="Áp dụng bộ lọc"
-                        >
+                        <button type="button" className="product-admin-filter-btn" aria-label="Áp dụng bộ lọc">
                             Lọc
                         </button>
                         <button
@@ -565,17 +559,19 @@ export default function ProductsAdminPage() {
                         <div className="product-admin-grid">
                             <div className="product-admin-form-section">
                                 <div className="product-admin-field">
-                                    <label className="required" htmlFor="product-admin-name">Tên sản phẩm</label>
+                                    <label className="required" htmlFor="product-admin-name">
+                                        Tên sản phẩm
+                                    </label>
                                     <input
                                         id="product-admin-name"
                                         className={`product-admin-input ${errors.name ? 'error' : ''}`}
                                         value={form.name}
                                         onChange={(e) => {
-                                        setForm({ ...form, name: e.target.value });
-                                        if (errors.name) {
-                                            setErrors({ ...errors, name: null });
-                                        }
-                                    }}
+                                            setForm({ ...form, name: e.target.value });
+                                            if (errors.name) {
+                                                setErrors({ ...errors, name: null });
+                                            }
+                                        }}
                                         placeholder="Nhập tên sản phẩm"
                                     />
                                     {errors.name && <div className="error-message">{errors.name}</div>}
@@ -599,111 +595,138 @@ export default function ProductsAdminPage() {
                                         className="product-admin-input"
                                         type="text"
                                         value={form.price}
-                                    onChange={(e) => {
-                                        const rawValue = e.target.value;
-                                        const numericValue = rawValue.replace(/[^0-9]/g, '');
-                                        const formattedValue = formatPrice(numericValue);
-                                        setForm({ ...form, price: formattedValue });
-                                    }}
-                                    onBlur={(e) => {
-                                        const numericValue = parsePrice(e.target.value);
-                                        if (numericValue && !isNaN(numericValue)) {
+                                        onChange={(e) => {
+                                            const input = e.target;
+                                            const selectionStart = input.selectionStart;
+                                            const oldValue = input.value;
+
+                                            // Số digit đứng trước con trỏ (bỏ qua dấu chấm)
+                                            const digitsBeforeCursor = oldValue
+                                                .slice(0, selectionStart)
+                                                .replace(/[^0-9]/g, '').length;
+
+                                            const numericValue = oldValue.replace(/[^0-9]/g, '');
                                             const formattedValue = formatPrice(numericValue);
+
+                                            // Tìm lại vị trí con trỏ sao cho giữ nguyên số digit đứng trước nó
+                                            let newCursor = formattedValue.length;
+                                            if (digitsBeforeCursor === 0) {
+                                                newCursor = 0;
+                                            } else {
+                                                let seen = 0;
+                                                for (let i = 0; i < formattedValue.length; i++) {
+                                                    if (/[0-9]/.test(formattedValue[i])) {
+                                                        seen++;
+                                                        if (seen === digitsBeforeCursor) {
+                                                            newCursor = i + 1;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+
                                             setForm({ ...form, price: formattedValue });
-                                        }
-                                    }}
+
+                                            // Khôi phục con trỏ sau khi React commit DOM
+                                            requestAnimationFrame(() => {
+                                                input.setSelectionRange(newCursor, newCursor);
+                                            });
+                                        }}
                                         placeholder="Nhập giá sản phẩm (VD: 500.000)"
                                     />
                                 </div>
 
                                 <div className="product-admin-field">
-                                    <label className="required" htmlFor="product-admin-category">Danh mục</label>
+                                    <label className="required" htmlFor="product-admin-category">
+                                        Danh mục
+                                    </label>
                                     <select
                                         id="product-admin-category"
                                         className={`product-admin-input ${errors.category_id ? 'error' : ''}`}
                                         value={form.category_id}
-                                    onChange={(e) => {
-                                        setForm({ ...form, category_id: e.target.value });
-                                        if (errors.category_id) {
-                                            setErrors({ ...errors, category_id: null });
-                                        }
-                                    }}
-                                >
-                                    <option value="">-- Chọn danh mục --</option>
-                                    {categories.map((c) => (
-                                        <option key={c.id} value={c.id}>
-                                            {c.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                {errors.category_id && <div className="error-message">{errors.category_id}</div>}
+                                        onChange={(e) => {
+                                            setForm({ ...form, category_id: e.target.value });
+                                            if (errors.category_id) {
+                                                setErrors({ ...errors, category_id: null });
+                                            }
+                                        }}
+                                    >
+                                        <option value="">-- Chọn danh mục --</option>
+                                        {categories.map((c) => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.category_id && <div className="error-message">{errors.category_id}</div>}
 
-                                {/* Quick create category */}
-                                {quickCat.open ? (
-                                    <div className="product-admin-quick-create">
-                                        <input
-                                            className="product-admin-input"
-                                            placeholder="Tên danh mục"
-                                            value={quickCat.name}
-                                            onChange={(e) => setQuickCat({ ...quickCat, name: e.target.value })}
-                                        />
-                                        <input
-                                            className="product-admin-input"
-                                            placeholder="Slug (tùy chọn)"
-                                            value={quickCat.slug}
-                                            onChange={(e) => setQuickCat({ ...quickCat, slug: e.target.value })}
-                                        />
+                                    {/* Quick create category */}
+                                    {quickCat.open ? (
+                                        <div className="product-admin-quick-create">
+                                            <input
+                                                className="product-admin-input"
+                                                placeholder="Tên danh mục"
+                                                value={quickCat.name}
+                                                onChange={(e) => setQuickCat({ ...quickCat, name: e.target.value })}
+                                            />
+                                            <input
+                                                className="product-admin-input"
+                                                placeholder="Slug (tùy chọn)"
+                                                value={quickCat.slug}
+                                                onChange={(e) => setQuickCat({ ...quickCat, slug: e.target.value })}
+                                            />
+                                            <button
+                                                type="button"
+                                                className="product-admin-btn"
+                                                onClick={async () => {
+                                                    const t = localStorage.getItem('token');
+                                                    if (!t || !quickCat.name.trim()) return;
+                                                    const fd = new FormData();
+                                                    fd.append('name', quickCat.name);
+                                                    if (quickCat.slug) fd.append('slug', quickCat.slug);
+                                                    const res = await fetch(`${API_BASE}/api/categories/`, {
+                                                        method: 'POST',
+                                                        headers: { Authorization: `Bearer ${t}` },
+                                                        body: fd,
+                                                    });
+                                                    const d = await res.json().catch(() => ({}));
+                                                    if (!res.ok) {
+                                                        alert(d.message || 'Tạo danh mục thất bại');
+                                                        return;
+                                                    }
+                                                    setQuickCat({ open: false, name: '', slug: '' });
+                                                    await fetchCats();
+                                                }}
+                                            >
+                                                Lưu
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="product-admin-btn product-admin-btn-secondary"
+                                                onClick={() => setQuickCat({ open: false, name: '', slug: '' })}
+                                            >
+                                                Huỷ
+                                            </button>
+                                        </div>
+                                    ) : (
                                         <button
                                             type="button"
                                             className="product-admin-btn"
-                                            onClick={async () => {
-                                                const t = localStorage.getItem('token');
-                                                if (!t || !quickCat.name.trim()) return;
-                                                const fd = new FormData();
-                                                fd.append('name', quickCat.name);
-                                                if (quickCat.slug) fd.append('slug', quickCat.slug);
-                                                const res = await fetch(`${API_BASE}/api/categories/`, {
-                                                    method: 'POST',
-                                                    headers: { Authorization: `Bearer ${t}` },
-                                                    body: fd,
-                                                });
-                                                const d = await res.json().catch(() => ({}));
-                                                if (!res.ok) {
-                                                    alert(d.message || 'Tạo danh mục thất bại');
-                                                    return;
-                                                }
-                                                setQuickCat({ open: false, name: '', slug: '' });
-                                                await fetchCats();
-                                            }}
+                                            onClick={() => setQuickCat({ open: true, name: '', slug: '' })}
                                         >
-                                            Lưu
+                                            Tạo nhanh danh mục
                                         </button>
-                                        <button
-                                            type="button"
-                                            className="product-admin-btn product-admin-btn-secondary"
-                                            onClick={() => setQuickCat({ open: false, name: '', slug: '' })}
-                                        >
-                                            Huỷ
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        className="product-admin-btn"
-                                        onClick={() => setQuickCat({ open: true, name: '', slug: '' })}
-                                    >
-                                        Tạo nhanh danh mục
-                                    </button>
-                                )}
+                                    )}
                                 </div>
                             </div>
 
                             <div className="product-admin-form-section">
                                 <div className="product-admin-field">
                                     <label htmlFor="product-admin-description">Mô tả</label>
-                                    <input
+                                    <textarea
                                         id="product-admin-description"
                                         className="product-admin-input"
+                                        rows={8}
                                         value={form.description}
                                         onChange={(e) => setForm({ ...form, description: e.target.value })}
                                     />
@@ -711,133 +734,136 @@ export default function ProductsAdminPage() {
 
                                 {/* Attributes */}
                                 <div className="product-admin-field">
-                                <label>Thuộc tính</label>
-                                {/* Quick create attribute */}
-                                {quickAttr.open ? (
-                                    <div className="product-admin-quick-create">
-                                        <input
-                                            className="product-admin-input"
-                                            placeholder="Tên thuộc tính"
-                                            value={quickAttr.name}
-                                            onChange={(e) => setQuickAttr({ ...quickAttr, name: e.target.value })}
-                                        />
-                                        <input
-                                            className="product-admin-input"
-                                            placeholder="Slug (tùy chọn)"
-                                            value={quickAttr.slug}
-                                            onChange={(e) => setQuickAttr({ ...quickAttr, slug: e.target.value })}
-                                        />
-                                        <button
-                                            type="button"
-                                            className="product-admin-btn"
-                                            onClick={async () => {
-                                                const t = localStorage.getItem('token');
-                                                if (!t || !quickAttr.name.trim()) return;
-                                                const res = await fetch(`${API_BASE}/api/products/attributes/`, {
-                                                    method: 'POST',
-                                                    headers: {
-                                                        'Content-Type': 'application/json',
-                                                        Authorization: `Bearer ${t}`,
-                                                    },
-                                                    body: JSON.stringify({
-                                                        name: quickAttr.name,
-                                                        slug: quickAttr.slug,
-                                                    }),
-                                                });
-                                                const d = await res.json().catch(() => ({}));
-                                                if (!res.ok) {
-                                                    alert(d.message || 'Tạo thuộc tính thất bại');
-                                                    return;
-                                                }
-                                                setQuickAttr({ open: false, name: '', slug: '' });
-                                                await fetchAttributes();
-                                            }}
-                                        >
-                                            Lưu
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="product-admin-btn product-admin-btn-secondary"
-                                            onClick={() => setQuickAttr({ open: false, name: '', slug: '' })}
-                                        >
-                                            Huỷ
-                                        </button>
-                                    </div>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        className="product-admin-btn"
-                                        onClick={() => setQuickAttr({ open: true, name: '', slug: '' })}
-                                    >
-                                        Tạo nhanh thuộc tính
-                                    </button>
-                                )}
-
-                                {/* Attribute rows */}
-                                <div className="product-admin-attr-list">
-                                    {attrRows.map((row, idx) => (
-                                        <div key={idx} className="product-admin-attr-row">
-                                            <select
-                                                className="product-admin-input"
-                                                value={row.attribute_id}
-                                                onChange={(e) => {
-                                                    const next = [...attrRows];
-                                                    next[idx].attribute_id = e.target.value;
-                                                    setAttrRows(next);
-                                                }}
-                                                onKeyDown={(e) => handleAttrKeyDown(e, idx)}
-                                            >
-                                                <option value="">-- Chọn --</option>
-                                                {attributes.map((a) => (
-                                                    <option key={a.id} value={a.id}>
-                                                        {a.name}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                    <label>Thuộc tính</label>
+                                    {/* Quick create attribute */}
+                                    {quickAttr.open ? (
+                                        <div className="product-admin-quick-create">
                                             <input
                                                 className="product-admin-input"
-                                                placeholder="Giá trị"
-                                                value={row.value}
-                                                onChange={(e) => {
-                                                    const next = [...attrRows];
-                                                    next[idx].value = e.target.value;
-                                                    setAttrRows(next);
-                                                }}
-                                                data-attr-row={idx}
-                                                data-field="value"
-                                                onKeyDown={(e) => handleAttrKeyDown(e, idx)}
+                                                placeholder="Tên thuộc tính"
+                                                value={quickAttr.name}
+                                                onChange={(e) => setQuickAttr({ ...quickAttr, name: e.target.value })}
                                             />
                                             <input
                                                 className="product-admin-input"
-                                                type="number"
-                                                placeholder="Phụ thu"
-                                                value={row.extra_price}
-                                                onChange={(e) => {
-                                                    const next = [...attrRows];
-                                                    next[idx].extra_price = Number(e.target.value);
-                                                    setAttrRows(next);
-                                                }}
-                                                onKeyDown={(e) => handleAttrKeyDown(e, idx)}
+                                                placeholder="Slug (tùy chọn)"
+                                                value={quickAttr.slug}
+                                                onChange={(e) => setQuickAttr({ ...quickAttr, slug: e.target.value })}
                                             />
                                             <button
                                                 type="button"
-                                                className="product-admin-btn product-admin-btn-danger"
-                                                onClick={() => setAttrRows(attrRows.filter((_, i) => i !== idx))}
+                                                className="product-admin-btn"
+                                                onClick={async () => {
+                                                    const t = localStorage.getItem('token');
+                                                    if (!t || !quickAttr.name.trim()) return;
+                                                    const res = await fetch(`${API_BASE}/api/products/attributes/`, {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                            Authorization: `Bearer ${t}`,
+                                                        },
+                                                        body: JSON.stringify({
+                                                            name: quickAttr.name,
+                                                            slug: quickAttr.slug,
+                                                        }),
+                                                    });
+                                                    const d = await res.json().catch(() => ({}));
+                                                    if (!res.ok) {
+                                                        alert(d.message || 'Tạo thuộc tính thất bại');
+                                                        return;
+                                                    }
+                                                    setQuickAttr({ open: false, name: '', slug: '' });
+                                                    await fetchAttributes();
+                                                }}
                                             >
-                                                Xoá
+                                                Lưu
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="product-admin-btn product-admin-btn-secondary"
+                                                onClick={() => setQuickAttr({ open: false, name: '', slug: '' })}
+                                            >
+                                                Huỷ
                                             </button>
                                         </div>
-                                    ))}
-                                    <button
-                                        type="button"
-                                        className="product-admin-btn"
-                                        onClick={() =>
-                                            setAttrRows([...attrRows, { attribute_id: '', value: '', extra_price: 0 }])
-                                        }
-                                    >
-                                        + Thêm thuộc tính
-                                    </button>
-                                </div>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            className="product-admin-btn"
+                                            onClick={() => setQuickAttr({ open: true, name: '', slug: '' })}
+                                        >
+                                            Tạo nhanh thuộc tính
+                                        </button>
+                                    )}
+
+                                    {/* Attribute rows */}
+                                    <div className="product-admin-attr-list">
+                                        {attrRows.map((row, idx) => (
+                                            <div key={idx} className="product-admin-attr-row">
+                                                <select
+                                                    className="product-admin-input"
+                                                    value={row.attribute_id}
+                                                    onChange={(e) => {
+                                                        const next = [...attrRows];
+                                                        next[idx].attribute_id = e.target.value;
+                                                        setAttrRows(next);
+                                                    }}
+                                                    onKeyDown={(e) => handleAttrKeyDown(e, idx)}
+                                                >
+                                                    <option value="">-- Chọn --</option>
+                                                    {attributes.map((a) => (
+                                                        <option key={a.id} value={a.id}>
+                                                            {a.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    className="product-admin-input"
+                                                    placeholder="Giá trị"
+                                                    value={row.value}
+                                                    onChange={(e) => {
+                                                        const next = [...attrRows];
+                                                        next[idx].value = e.target.value;
+                                                        setAttrRows(next);
+                                                    }}
+                                                    data-attr-row={idx}
+                                                    data-field="value"
+                                                    onKeyDown={(e) => handleAttrKeyDown(e, idx)}
+                                                />
+                                                <input
+                                                    className="product-admin-input"
+                                                    type="number"
+                                                    placeholder="Phụ thu"
+                                                    value={row.extra_price}
+                                                    onChange={(e) => {
+                                                        const next = [...attrRows];
+                                                        next[idx].extra_price = Number(e.target.value);
+                                                        setAttrRows(next);
+                                                    }}
+                                                    onKeyDown={(e) => handleAttrKeyDown(e, idx)}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="product-admin-btn product-admin-btn-danger"
+                                                    onClick={() => setAttrRows(attrRows.filter((_, i) => i !== idx))}
+                                                >
+                                                    Xoá
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            className="product-admin-btn"
+                                            onClick={() =>
+                                                setAttrRows([
+                                                    ...attrRows,
+                                                    { attribute_id: '', value: '', extra_price: 0 },
+                                                ])
+                                            }
+                                        >
+                                            + Thêm thuộc tính
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
 
@@ -862,18 +888,18 @@ export default function ProductsAdminPage() {
                                         accept="image/*"
                                         onChange={(e) => handleImagesChange(e.target.files)}
                                     />
-                                {editingId && (
-                                    <div className="product-admin-inline">
-                                        <label className="product-admin-checkbox">
-                                            <input
-                                                type="checkbox"
-                                                checked={replaceImages}
-                                                onChange={(e) => setReplaceImages(e.target.checked)}
-                                            />
-                                            Thay thế toàn bộ ảnh hiện có bằng bộ ảnh mới
-                                        </label>
-                                    </div>
-                                )}
+                                    {editingId && (
+                                        <div className="product-admin-inline">
+                                            <label className="product-admin-checkbox">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={replaceImages}
+                                                    onChange={(e) => setReplaceImages(e.target.checked)}
+                                                />
+                                                Thay thế toàn bộ ảnh hiện có bằng bộ ảnh mới
+                                            </label>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="product-admin-image-preview">
                                     {images.map((img, idx) => (
@@ -881,7 +907,9 @@ export default function ProductsAdminPage() {
                                             key={idx}
                                             className={`product-admin-image-box product-admin-image-hover ${img.isMain ? 'active' : ''}`}
                                         >
-                                            {img.isMain && <span className="product-admin-image-main-badge">Ảnh chính</span>}
+                                            {img.isMain && (
+                                                <span className="product-admin-image-main-badge">Ảnh chính</span>
+                                            )}
                                             <img src={img.preview} alt={`preview-${idx}`} />
                                             <button type="button" onClick={() => setMainImage(idx)}>
                                                 {img.isMain ? 'Ảnh chính ✓' : 'Chọn ảnh chính'}

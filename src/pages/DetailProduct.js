@@ -224,12 +224,12 @@ export default function DetailProduct() {
                     <div className="zalo-button-container">
                         <a
                             className="zalo-button "
-                            href={`https://zalo.me/${shopInfo?.phone}`}
+                            href="https://www.instagram.com/rosie_orderr/"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            Liên hệ Zalo
-                            <p className="zalo-button-text">{formatPhone(shopInfo?.phone)}</p>
+                            Liên hệ Instagram
+                            <p className="zalo-button-text">@rosie_orderr</p>
                         </a>
                     </div>
                 </div>
@@ -302,9 +302,6 @@ export default function DetailProduct() {
 
                         <button className="detail-product-order-btn" onClick={handleOrder}>
                             <p>Đặt hàng ngay</p>
-                            <p style={{ fontSize: '0.6rem', color: '#333', marginTop: '8px' }}>
-                                Freeship dưới 3km cho đơn từ 300k
-                            </p>
                         </button>
                         <div
                             style={{

@@ -21,6 +21,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "proxy": "https://rosieorderr.kinhdoanh.website",
   "eslintConfig": {
     "extends": [
       "react-app",

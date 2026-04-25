@@ -374,9 +374,17 @@
 }
 
 .product-admin-action-group {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.product-admin-action-group .product-admin-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    font-weight: 500;
 }
 
 .product-admin-empty-state {
@@ -388,7 +396,8 @@
 
 .product-admin-table-wrapper {
     overflow-x: auto;
-    background: #f8f9fa;
+    background: #fff;
+    border: 1px solid #e9ecef;
     border-radius: 12px;
     margin-top: 20px;
 }
@@ -397,39 +406,64 @@
     width: 100%;
     border-collapse: collapse;
     background: transparent;
-    font-size: 1rem;
+    font-size: 0.92rem;
 }
 
 .product-admin-table th,
 .product-admin-table td {
-    padding: 20px 15px;
+    padding: 10px 14px;
     text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #f1f3f5;
 }
 
 .product-admin-table th {
     background: #f8f9fa;
-    color: #333;
-    font-weight: 700;
-    font-size: 1.1rem;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.78rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.product-admin-table th:nth-child(1),
+.product-admin-table td:nth-child(1) {
+    width: 50px;
+    color: #adb5bd;
+    font-size: 0.85rem;
+}
+
+.product-admin-table th:nth-child(3),
+.product-admin-table td:nth-child(3) {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    color: #0a7d2c;
+    font-weight: 600;
+}
+
+.product-admin-table th:nth-child(5),
+.product-admin-table td:nth-child(5) {
+    text-align: center;
+    width: 90px;
+}
+
+.product-admin-table th:last-child,
+.product-admin-table td:last-child {
+    text-align: right;
+    white-space: nowrap;
 }
 
 .product-admin-table tr {
-    transition: background 0.2s ease;
+    transition: background 0.15s ease;
 }
 
-.product-admin-table tr:hover {
-    background: rgba(190, 170, 67, 0.06);
-}
-
-.product-admin-table tr:hover td {
-    color: #333;
-    font-weight: 500;
+.product-admin-table tbody tr:hover {
+    background: #fafbfc;
 }
 
 .product-admin-table td {
-    color: #666;
+    color: #495057;
     font-weight: 400;
 }
 

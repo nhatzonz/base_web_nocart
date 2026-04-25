@@ -268,7 +268,7 @@ export default function ProductsAdminPage() {
         setForm({
             name: p.name,
             code: p.code || '',
-            price: p.price ? formatPrice(p.price) : '',
+            price: p.price ? String(p.price) : '',
             category_id: p.category_id || '',
             description: p.description || '',
             sort_order: p.sort_order || 0,
@@ -589,50 +589,25 @@ export default function ProductsAdminPage() {
                                 </div>
 
                                 <div className="product-admin-field">
-                                    <label htmlFor="product-admin-price">Giá</label>
+                                    <label htmlFor="product-admin-price">
+                                        Giá
+                                        {form.price && (
+                                            <span style={{ marginLeft: 8, color: '#0a7d2c', fontWeight: 600 }}>
+                                                ({formatPrice(form.price)} đ)
+                                            </span>
+                                        )}
+                                    </label>
                                     <input
                                         id="product-admin-price"
                                         className="product-admin-input"
                                         type="text"
+                                        inputMode="numeric"
                                         value={form.price}
                                         onChange={(e) => {
-                                            const input = e.target;
-                                            const selectionStart = input.selectionStart;
-                                            const oldValue = input.value;
-
-                                            // Số digit đứng trước con trỏ (bỏ qua dấu chấm)
-                                            const digitsBeforeCursor = oldValue
-                                                .slice(0, selectionStart)
-                                                .replace(/[^0-9]/g, '').length;
-
-                                            const numericValue = oldValue.replace(/[^0-9]/g, '');
-                                            const formattedValue = formatPrice(numericValue);
-
-                                            // Tìm lại vị trí con trỏ sao cho giữ nguyên số digit đứng trước nó
-                                            let newCursor = formattedValue.length;
-                                            if (digitsBeforeCursor === 0) {
-                                                newCursor = 0;
-                                            } else {
-                                                let seen = 0;
-                                                for (let i = 0; i < formattedValue.length; i++) {
-                                                    if (/[0-9]/.test(formattedValue[i])) {
-                                                        seen++;
-                                                        if (seen === digitsBeforeCursor) {
-                                                            newCursor = i + 1;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                            }
-
-                                            setForm({ ...form, price: formattedValue });
-
-                                            // Khôi phục con trỏ sau khi React commit DOM
-                                            requestAnimationFrame(() => {
-                                                input.setSelectionRange(newCursor, newCursor);
-                                            });
+                                            const numericValue = e.target.value.replace(/[^0-9]/g, '');
+                                            setForm({ ...form, price: numericValue });
                                         }}
-                                        placeholder="Nhập giá sản phẩm (VD: 500.000)"
+                                        placeholder="Nhập giá sản phẩm (VD: 500000)"
                                     />
                                 </div>
 
@@ -943,8 +918,8 @@ export default function ProductsAdminPage() {
                                 <th>Tên</th>
                                 <th>Giá</th>
                                 <th>Danh mục</th>
-                                <th>Thứ tự hiển thị</th>
-                                <th>HĐ</th>
+                                <th>Thứ tự</th>
+                                <th>Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
